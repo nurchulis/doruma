@@ -40,3 +40,17 @@ type ErrorDetails struct {
 	Message string      `json:"message"`
 	Errors  interface{} `json:"errors"`
 }
+
+type WebhookResponse struct {
+	Category      string `json:"category"`
+	Used          string `json:"used"`
+	Total         int    `json:"total"`
+	SessionUserID string `json:"session_user_id"`
+}
+
+type SuccessWithData struct {
+	Code    int         `json:"code"`
+	Status  string      `json:"status"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
+}
