@@ -22,4 +22,8 @@ func SpendingRoutes(r fiber.Router, spendingService *service.SpendingService) {
 	spending.Get("/categories", func(c *fiber.Ctx) error {
 		return spendingController.GetCategories(c)
 	})
+
+	spending.Get("/summary", func(c *fiber.Ctx) error {
+		return spendingController.GetSummarySpending(c)
+	})
 }

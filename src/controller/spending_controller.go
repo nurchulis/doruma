@@ -189,3 +189,38 @@ func (sc *SpendingController) GetCategories(c *fiber.Ctx) error {
 			TotalResults: totalResults,
 		})
 }
+
+func (sc *SpendingController) GetSummarySpending(c *fiber.Ctx) error {
+	UserSessionID := c.Get("session_user_id")
+	query := &validation.QuerySpendingSummary{
+		Search:        c.Query("search", ""),
+		UserSessionID: UserSessionID,
+	}
+
+	summary, totalResults, err := sc.SpendingService.GetSummarySpending(c, query)
+	if err != nil {
+		return err
+	}
+
+	// Convert []model.CategorySpendingSummary to []response.SummarySpending
+	result := make([]response.SummarySpending, len(summary))
+	for i := range summary {
+		result[i] = response.SummarySpending{
+			CategoryID:  summary[i].CategoryID,
+			Category:    summary[i].Category,
+			TotalAmount: summary[i].TotalAmount,
+			PeriodStart: summary[i].PeriodStart,
+			PeriodEnd:   summary[i].PeriodEnd,
+			PeriodType:  summary[i].PeriodType,
+		}
+	}
+
+	return c.Status(fiber.StatusOK).
+		JSON(response.SuccessWithPaginate[response.SummarySpending]{
+			Code:         fiber.StatusOK,
+			Status:       "success",
+			Message:      "Get summary categories successfully",
+			Results:      result,
+			TotalResults: totalResults,
+		})
+}

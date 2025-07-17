@@ -30,3 +30,10 @@ type QuerySpending struct {
 	Limit  int    `validate:"omitempty,number,max=50"`
 	Search string `validate:"omitempty,max=50"`
 }
+
+type QuerySpendingSummary struct {
+	Page          int    `validate:"omitempty,number,max=50"`
+	Limit         int    `validate:"omitempty,number,max=50"`
+	Search        string `validate:"omitempty,max=50"`
+	UserSessionID string `validate:"required,max=50"`
+}

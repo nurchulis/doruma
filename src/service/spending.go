@@ -18,6 +18,7 @@ type SpendingService interface {
 	CreateSpending(c *fiber.Ctx, req *validation.CreateSpending) (*model.Spending, error)
 	GetCategories(c *fiber.Ctx, params *validation.QueryUser) ([]model.Category, int64, error)
 	GetSpendings(c *fiber.Ctx, params *validation.QueryUser) ([]model.Spending, int64, error)
+	GetSummarySpending(c *fiber.Ctx, params *validation.QuerySpendingSummary) ([]model.CategorySpendingSummary, int64, error)
 }
 
 type spendingService struct {
@@ -202,7 +203,7 @@ func UpsertSummary(db *gorm.DB, userSessionID uuid.UUID, categoryID uuid.UUID, c
 	}
 	// Yearly
 	yearStart, yearEnd := getYearRange(now)
-	return upsertSpendingSummary(db, userSessionID, categoryID, category, amount, yearStart, yearEnd, "custom")
+	return upsertSpendingSummary(db, userSessionID, categoryID, category, amount, yearStart, yearEnd, "yearly")
 }
 
 // upsertSpendingSummary inserts or updates a summary for the given period
@@ -230,4 +231,54 @@ func upsertSpendingSummary(db *gorm.DB, userSessionID uuid.UUID, categoryID uuid
 
 	// Update existing
 	return db.Model(&summary).Update("total_amount", gorm.Expr("total_amount + ?", amount)).Error
+}
+
+func (s *spendingService) GetSummarySpending(c *fiber.Ctx, params *validation.QuerySpendingSummary) ([]model.CategorySpendingSummary, int64, error) {
+	var summaries []model.CategorySpendingSummary
+	var totalResults int64
+
+	if err := s.Validate.Struct(params); err != nil {
+		return nil, 0, err
+	}
+
+	subQuery := s.DB.
+		WithContext(c.Context()).
+		Model(&model.CategorySpendingSummary{}).
+		Select(
+			"category_id",
+			"category",
+			"SUM(total_amount) AS total_amount",
+			"MIN(period_start) AS period_start",
+			"MAX(period_end) AS period_end",
+			"period_type",
+		).
+		Where("period_type = ?", "daily").
+		Where("user_session_id = ?", params.UserSessionID).
+		Group("category_id, category, period_type")
+
+	// Wrap the subquery into a query to count result
+	countResult := s.DB.Table("(?) as summary", subQuery).Count(&totalResults)
+	if countResult.Error != nil {
+		s.Log.Errorf("Failed to count grouped summaries: %+v", countResult.Error)
+		return nil, 0, countResult.Error
+	}
+
+	// Run the actual select
+	findResult := s.DB.Raw(`
+		SELECT 
+			category_id, category, SUM(total_amount) AS total_amount,
+			MIN(period_start) AS period_start, MAX(period_end) AS period_end,
+			period_type
+		FROM category_spending_summaries
+		WHERE period_type = ?
+		GROUP BY category_id, category, period_type
+		ORDER BY total_amount DESC
+	`, "daily").Scan(&summaries)
+
+	if findResult.Error != nil {
+		s.Log.Errorf("Failed to fetch grouped summaries: %+v", findResult.Error)
+		return nil, 0, findResult.Error
+	}
+
+	return summaries, totalResults, nil
 }
