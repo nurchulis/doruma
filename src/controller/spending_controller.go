@@ -2,6 +2,7 @@ package controller
 
 import (
 	"app/src/config"
+	"app/src/model"
 	"app/src/response"
 	"app/src/service"
 	"app/src/validation"
@@ -9,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"mime"
 	"mime/multipart"
 	"net/http"
@@ -115,7 +117,7 @@ func (sc *SpendingController) CreateSpending(c *fiber.Ctx) error {
 	createSpending := &validation.CreateSpending{
 		UserSessionID: sessionUserID,
 		Category:      wr.Category,
-		CategoryID:    "95eb84d2-0a32-4aef-b6c2-bfb5bbc686f5",
+		CategoryID:    "95eb84d2-0a32-4aef-b6c2-bfb5bbc686f5", // Default category ID, should be replaced with actual logic
 		Amount:        float64(wr.Total),
 		Name:          wr.Used,
 		IsConfirm:     true,
@@ -141,4 +143,49 @@ func (sc *SpendingController) CreateSpending(c *fiber.Ctx) error {
 			Data:    respMap,
 		})
 
+}
+
+func (sc *SpendingController) GetSpending(c *fiber.Ctx) error {
+	query := &validation.QueryUser{
+		Page:   c.QueryInt("page", 1),
+		Limit:  c.QueryInt("limit", 10),
+		Search: c.Query("search", ""),
+	}
+
+	spendings, totalResults, err := sc.SpendingService.GetSpendings(c, query)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).
+		JSON(response.SuccessWithPaginate[model.Spending]{
+			Code:         fiber.StatusOK,
+			Status:       "success",
+			Message:      "Get all spendings successfully",
+			Results:      spendings,
+			Page:         query.Page,
+			Limit:        query.Limit,
+			TotalPages:   int64(math.Ceil(float64(totalResults) / float64(query.Limit))),
+			TotalResults: totalResults,
+		})
+}
+
+func (sc *SpendingController) GetCategories(c *fiber.Ctx) error {
+	query := &validation.QueryUser{
+		Search: c.Query("search", ""),
+	}
+
+	categories, totalResults, err := sc.SpendingService.GetCategories(c, query)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(fiber.StatusOK).
+		JSON(response.SuccessWithPaginate[model.Category]{
+			Code:         fiber.StatusOK,
+			Status:       "success",
+			Message:      "Get all categories successfully",
+			Results:      categories,
+			TotalResults: totalResults,
+		})
 }

@@ -14,4 +14,12 @@ func SpendingRoutes(r fiber.Router, spendingService *service.SpendingService) {
 	spending.Post("/", func(c *fiber.Ctx) error {
 		return spendingController.CreateSpending(c)
 	})
+
+	spending.Get("/list", func(c *fiber.Ctx) error {
+		return spendingController.GetSpending(c)
+	})
+
+	spending.Get("/categories", func(c *fiber.Ctx) error {
+		return spendingController.GetCategories(c)
+	})
 }

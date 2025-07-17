@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 
+	"time"
+
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -22,4 +24,9 @@ func ParseUUID(uuidStr string) (uuid.UUID, error) {
 		return uuid.UUID{}, fmt.Errorf("invalid UUID format: %w", err)
 	}
 	return u, nil
+}
+
+// ParseDatetime parses a datetime string in RFC3339 format and returns a time.Time object.
+func ParseDatetime(datetimeStr string) (time.Time, error) {
+	return time.Parse(time.RFC3339, datetimeStr)
 }
