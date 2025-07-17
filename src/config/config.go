@@ -28,6 +28,7 @@ var (
 	GoogleClientID      string
 	GoogleClientSecret  string
 	RedirectURL         string
+	N8NWebhookURL       string
 )
 
 func init() {
@@ -63,6 +64,9 @@ func init() {
 	GoogleClientID = viper.GetString("GOOGLE_CLIENT_ID")
 	GoogleClientSecret = viper.GetString("GOOGLE_CLIENT_SECRET")
 	RedirectURL = viper.GetString("REDIRECT_URL")
+
+	// n8n webhook URL
+	N8NWebhookURL = viper.GetString("N8N_WEBHOOK_URL")
 }
 
 func loadConfig() {

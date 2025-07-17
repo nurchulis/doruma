@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"app/src/config"
 	"app/src/response"
 	"app/src/service"
 	"app/src/validation"
@@ -29,7 +30,7 @@ func NewSpendingController(spendingService service.SpendingService) *SpendingCon
 }
 
 func (sc *SpendingController) CreateSpending(c *fiber.Ctx) error {
-	webhookURL := "https://n8n-u3amkcsfjd0u.cica.sumopod.my.id/webhook/2f1957b5-18d7-44ae-b66e-123c52e88cff"
+	webhookURL := config.N8NWebhookURL
 	sessionUserID := c.Get("session_user_id")
 	authHeader := c.Get("Authorization")
 
