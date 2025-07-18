@@ -26,4 +26,8 @@ func SpendingRoutes(r fiber.Router, spendingService *service.SpendingService) {
 	spending.Get("/summary", func(c *fiber.Ctx) error {
 		return spendingController.GetSummarySpending(c)
 	})
+
+	spending.Get("/summary/total", func(c *fiber.Ctx) error {
+		return spendingController.GetSummaryTotal(c)
+	})
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"app/src/model"
+	"app/src/response"
 	"app/src/utils"
 	"app/src/validation"
 	"errors"
@@ -19,6 +20,7 @@ type SpendingService interface {
 	GetCategories(c *fiber.Ctx, params *validation.QueryUser) ([]model.Category, int64, error)
 	GetSpendings(c *fiber.Ctx, params *validation.QueryUser) ([]model.Spending, int64, error)
 	GetSummarySpending(c *fiber.Ctx, params *validation.QuerySpendingSummary) ([]model.CategorySpendingSummary, int64, error)
+	GetSummaryTotal(c *fiber.Ctx, params *validation.QuerySpendingSummary) (response.TotalSummarySpending, error)
 }
 
 type spendingService struct {
@@ -231,6 +233,31 @@ func upsertSpendingSummary(db *gorm.DB, userSessionID uuid.UUID, categoryID uuid
 
 	// Update existing
 	return db.Model(&summary).Update("total_amount", gorm.Expr("total_amount + ?", amount)).Error
+}
+
+// GetSummaryTotal returns the total spending for a user session and period type
+func (s *spendingService) GetSummaryTotal(c *fiber.Ctx, params *validation.QuerySpendingSummary) (response.TotalSummarySpending, error) {
+	if err := s.Validate.Struct(params); err != nil {
+		return response.TotalSummarySpending{}, err
+	}
+
+	if params.PeriodType == "" || params.PeriodType == "all" {
+		params.PeriodType = "yearly" // Default to yearly if not specified
+	}
+
+	var totalSpending int64
+	result := s.DB.WithContext(c.Context()).
+		Model(&model.CategorySpendingSummary{}).
+		Select("SUM(total_amount)").
+		Where("user_session_id = ? AND period_type = ?", params.UserSessionID, params.PeriodType).
+		Scan(&totalSpending)
+
+	if result.Error != nil {
+		s.Log.Errorf("Failed to get total spending: %+v", result.Error)
+		return response.TotalSummarySpending{}, result.Error
+	}
+
+	return response.TotalSummarySpending{Total: totalSpending}, nil
 }
 
 func (s *spendingService) GetSummarySpending(c *fiber.Ctx, params *validation.QuerySpendingSummary) ([]model.CategorySpendingSummary, int64, error) {

@@ -36,4 +36,7 @@ type QuerySpendingSummary struct {
 	Limit         int    `validate:"omitempty,number,max=50"`
 	Search        string `validate:"omitempty,max=50"`
 	UserSessionID string `validate:"required,max=50"`
+	PeriodStart   string `validate:"omitempty,datetime"`
+	PeriodEnd     string `validate:"omitempty,datetime"`
+	PeriodType    string `validate:"omitempty,oneof=daily weekly monthly custom yearly all" example:"daily"`
 }

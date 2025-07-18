@@ -16,3 +16,7 @@ type SummarySpending struct {
 	CreatedAt   *time.Time `gorm:"type:timestamp with time zone;autoCreateTime" json:"created_at,omitempty"`
 	UpdatedAt   *time.Time `gorm:"type:timestamp with time zone;autoUpdateTime" json:"updated_at,omitempty"`
 }
+
+type TotalSummarySpending struct {
+	Total int64 `json:"total"`
+}
