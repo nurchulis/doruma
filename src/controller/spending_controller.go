@@ -136,6 +136,7 @@ func (sc *SpendingController) CreateSpending(c *fiber.Ctx) error {
 	respMap["id"] = spending.ID
 
 	responseSpending := &response.CreateSpending{
+		ID:         spending.ID,
 		Name:       spending.Name,
 		Amount:     int64(spending.Amount),
 		CategoryID: *spending.CategoryID,

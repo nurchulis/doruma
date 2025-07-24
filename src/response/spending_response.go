@@ -22,6 +22,7 @@ type TotalSummarySpending struct {
 }
 
 type CreateSpending struct {
+	ID         uuid.UUID  `gorm:"type:uuid;default:gen_random_uuid()" json:"id"`
 	Name       string     `json:"name" validate:"required"`
 	Amount     int64      `json:"amount" validate:"required"`
 	CategoryID uuid.UUID  `json:"category_id" validate:"required"`
