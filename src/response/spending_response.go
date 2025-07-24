@@ -20,3 +20,13 @@ type SummarySpending struct {
 type TotalSummarySpending struct {
 	Total int64 `json:"total"`
 }
+
+type CreateSpending struct {
+	Name       string     `json:"name" validate:"required"`
+	Amount     int64      `json:"amount" validate:"required"`
+	CategoryID uuid.UUID  `json:"category_id" validate:"required"`
+	Category   string     `json:"category" validate:"required"`
+	Date       time.Time  `json:"datetime" validate:"required"`
+	CreatedAt  *time.Time `json:"created_at,omitempty"`
+	UpdatedAt  *time.Time `json:"updated_at,omitempty"`
+}

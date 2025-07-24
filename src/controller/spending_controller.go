@@ -135,12 +135,22 @@ func (sc *SpendingController) CreateSpending(c *fiber.Ctx) error {
 	// Inject spending ID
 	respMap["id"] = spending.ID
 
+	responseSpending := &response.CreateSpending{
+		Name:       spending.Name,
+		Amount:     int64(spending.Amount),
+		CategoryID: *spending.CategoryID,
+		Category:   spending.Category,
+		Date:       spending.Datetime,
+		CreatedAt:  &spending.CreatedAt,
+		UpdatedAt:  &spending.UpdatedAt,
+	}
+
 	return c.Status(fiber.StatusCreated).
 		JSON(response.SuccessWithData{
 			Code:    fiber.StatusCreated,
 			Status:  "success",
 			Message: "Create spending successfully",
-			Data:    respMap,
+			Data:    responseSpending,
 		})
 
 }
