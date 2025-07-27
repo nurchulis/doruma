@@ -16,7 +16,6 @@ import (
 	"net/http"
 	"net/textproto"
 	"path/filepath"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -112,8 +111,6 @@ func (sc *SpendingController) CreateSpending(c *fiber.Ctx) error {
 	var wr response.WebhookResponse
 	_ = json.Unmarshal(body, &wr) // ignore error, wr.Category will be empty if not found
 
-	now := time.Now().UTC().Format("2006-01-02T15:04:05Z07:00")
-
 	createSpending := &validation.CreateSpending{
 		UserSessionID: sessionUserID,
 		Category:      wr.Category,
@@ -121,8 +118,9 @@ func (sc *SpendingController) CreateSpending(c *fiber.Ctx) error {
 		Amount:        float64(wr.Total),
 		Name:          wr.Used,
 		IsConfirm:     true,
-		Datetime:      now,
+		Datetime:      wr.Datetime,
 	}
+
 	spending, err := sc.SpendingService.CreateSpending(c, createSpending)
 	if err != nil {
 		return err

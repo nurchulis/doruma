@@ -53,8 +53,18 @@ func (s *spendingService) CreateSpending(c *fiber.Ctx, req *validation.CreateSpe
 		s.Log.Errorf("Failed to get or create category: %+v", err)
 		return nil, fiber.NewError(fiber.StatusInternalServerError, "Failed to get or create category")
 	}
-	// Use current time for spending.Datetime
-	parsedDatetime := time.Now()
+
+	// Parse req.Datetime (string) to time.Time, fallback to current time if empty or invalid
+	var parsedDatetime time.Time
+	if req.Datetime != "" {
+		var err error
+		parsedDatetime, err = time.Parse(time.RFC3339, req.Datetime)
+		if err != nil {
+			return nil, fiber.NewError(fiber.StatusBadRequest, "Invalid datetime format, must be RFC3339")
+		}
+	} else {
+		parsedDatetime = time.Now()
+	}
 
 	spending := &model.Spending{
 		UserSessionID: userSessionUUID, // userSessionUUID should be uuid.UUID type

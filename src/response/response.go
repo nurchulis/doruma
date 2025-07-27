@@ -46,6 +46,7 @@ type WebhookResponse struct {
 	Used          string `json:"used"`
 	Total         int    `json:"total"`
 	SessionUserID string `json:"session_user_id"`
+	Datetime      string `json:"datetime"`
 }
 
 type SuccessWithData struct {
