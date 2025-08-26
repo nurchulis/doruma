@@ -7,28 +7,29 @@ import (
 )
 
 var (
-	IsProd              bool
-	AppHost             string
-	AppPort             int
-	DBHost              string
-	DBUser              string
-	DBPassword          string
-	DBName              string
-	DBPort              int
-	JWTSecret           string
-	JWTAccessExp        int
-	JWTRefreshExp       int
-	JWTResetPasswordExp int
-	JWTVerifyEmailExp   int
-	SMTPHost            string
-	SMTPPort            int
-	SMTPUsername        string
-	SMTPPassword        string
-	EmailFrom           string
-	GoogleClientID      string
-	GoogleClientSecret  string
-	RedirectURL         string
-	N8NWebhookURL       string
+	IsProd                       bool
+	AppHost                      string
+	AppPort                      int
+	DBHost                       string
+	DBUser                       string
+	DBPassword                   string
+	DBName                       string
+	DBPort                       int
+	JWTSecret                    string
+	JWTAccessExp                 int
+	JWTRefreshExp                int
+	JWTResetPasswordExp          int
+	JWTVerifyEmailExp            int
+	SMTPHost                     string
+	SMTPPort                     int
+	SMTPUsername                 string
+	SMTPPassword                 string
+	EmailFrom                    string
+	GoogleClientID               string
+	GoogleClientSecret           string
+	RedirectURL                  string
+	N8NWebhookURL                string
+	HealthCheckMemoryThresholdMB uint64
 )
 
 func init() {
@@ -67,6 +68,12 @@ func init() {
 
 	// n8n webhook URL
 	N8NWebhookURL = viper.GetString("N8N_WEBHOOK_URL")
+
+	// health check configuration
+	HealthCheckMemoryThresholdMB = uint64(viper.GetInt64("HEALTH_CHECK_MEMORY_THRESHOLD_MB")) //nolint:gosec // safe conversion for memory threshold
+	if HealthCheckMemoryThresholdMB == 0 {
+		HealthCheckMemoryThresholdMB = 300 // Default to 300MB
+	}
 }
 
 func loadConfig() {

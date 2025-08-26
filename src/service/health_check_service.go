@@ -1,6 +1,7 @@
 package service
 
 import (
+	"app/src/config"
 	"app/src/utils"
 	"errors"
 	"runtime"
@@ -46,10 +47,10 @@ func (s *healthCheckService) MemoryHeapCheck() error {
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats) // Collect memory statistics
 
-	heapAlloc := memStats.HeapAlloc            // Heap memory currently allocated
-	heapThreshold := uint64(300 * 1024 * 1024) // Example threshold: 300 MB
+	heapAlloc := memStats.HeapAlloc                                    // Heap memory currently allocated
+	heapThreshold := config.HealthCheckMemoryThresholdMB * 1024 * 1024 // Convert MB to bytes
 
-	s.Log.Infof("Heap Memory Allocation: %v bytes", heapAlloc)
+	s.Log.Infof("Heap Memory Allocation: %v bytes (threshold: %v bytes)", heapAlloc, heapThreshold)
 
 	// If the heap allocation exceeds the threshold, return an error
 	if heapAlloc > heapThreshold {
